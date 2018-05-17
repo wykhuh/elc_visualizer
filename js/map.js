@@ -1,22 +1,22 @@
-let w = 1400;
-let h = 700;
+let w = 900;
+let h = 500;
 let minZoom;
 let maxZoom;
 let maxAge;
 let minAge;
 let interval;
 let currentAge;
-
+let countriesGroup;
 var mapHolderEl = document.querySelector('#map-holder');
 var mapHolderWidth = mapHolderEl.offsetWidth;
 var mapHolderHeight = mapHolderEl.offsetHeight;
-
+let t;
 
 // Define map projection
 var projection = d3
   .geoEquirectangular()
-  .center([0, 15]) // set centre to further North as we are cropping more off bottom of map
-  .scale([w / (2 * Math.PI)]) // scale to fit group width
+  .center([-90, 35]) // set centre to further North as we are cropping more off bottom of map
+  .scale(350) // scale to fit group width
   .translate([w / 2, h / 2]); // ensure centred in group
 
 
@@ -25,11 +25,11 @@ var path = d3
   .geoPath()
   .projection(projection);
 
+
 // Create function to apply zoom to countriesGroup
 function zoomed() {
-  t = d3
-    .event
-    .transform;
+   t = d3.event.transform;
+
   countriesGroup
     .attr("transform","translate(" + [t.x, t.y] + ")scale(" + t.k + ")");
 }
@@ -75,6 +75,7 @@ function addPoints(data) {
   })
   .attr("r", "3px")
   .attr("fill", "red")
+
 }
 
 // create an SVG
@@ -85,7 +86,7 @@ var svg = d3
 
 
 // get map data
-d3.json("./data/world.geo.json")
+d3.json("./data/continent_North_America_subunits.json")
 .then((json) => {
   countriesGroup = svg.append("g").attr("id", "map");
   // add a background rectangle
