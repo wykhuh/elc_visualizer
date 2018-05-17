@@ -10,7 +10,9 @@ let countriesGroup;
 var mapHolderEl = document.querySelector('#map-holder');
 var mapHolderWidth = mapHolderEl.offsetWidth;
 var mapHolderHeight = mapHolderEl.offsetHeight;
+
 let t;
+const margin = {top: 20, right: 20, bottom: 30, left: 50};
 
 // Define map projection
 var projection = d3
@@ -122,5 +124,6 @@ d3.json("./data/continent_North_America_subunits.json")
     currentAge = minAge;
 
     addPoints(records);
+    drawGraph(records);
 
 })
