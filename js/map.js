@@ -13,6 +13,8 @@ var mapHolderHeight = mapHolderEl.offsetHeight;
 
 var ageEl = document.querySelector('.js-age');
 var occurencesEl = document.querySelector('.js-occurences');
+var linkEl = document.querySelector('.js-link');
+let url;
 
 let t;
 const margin = {top: 20, right: 20, bottom: 30, left: 50};
@@ -20,8 +22,8 @@ const margin = {top: 20, right: 20, bottom: 30, left: 50};
 // Define map projection
 var projection = d3
   .geoEquirectangular()
-  .center([-90, 35]) // set centre to further North as we are cropping more off bottom of map
-  .scale(350) // scale to fit group width
+  .center([-0, 20]) // set centre to further North as we are cropping more off bottom of map
+  .scale(150) // scale to fit group width
   .translate([w / 2, h / 2]); // ensure centred in group
 
 
@@ -91,7 +93,7 @@ var svg = d3
 
 
 // get map data
-d3.json("./data/continent_North_America_subunits.json")
+d3.json("./data/world.geo.json")
 .then((json) => {
   countriesGroup = svg.append("g").attr("id", "map");
   // add a background rectangle
@@ -116,7 +118,7 @@ d3.json("./data/continent_North_America_subunits.json")
 
   // initiateZoom();
 }).then(() => {
-  const url = 'http://earthlifeconsortium.org/api_v1/occ?taxon=Mammut%20americanum';
+  url = 'http://earthlifeconsortium.org/api_v1/occ?taxon=Mammut%20americanum';
 
   return axios.get(url)
 }).then((res) => {
@@ -169,7 +171,8 @@ d3.json("./data/continent_North_America_subunits.json")
     })
 
     drawGraph(records);
-
+    drawTable(records);
+    linkEl.href = url + '&output=csv'
 
     // maxAge = _.maxBy(records, 'max_age').max_age;
     // minAge = _.minBy(records, 'min_age').min_age;
