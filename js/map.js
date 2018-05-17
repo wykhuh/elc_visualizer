@@ -1,14 +1,11 @@
-
-
-// DEFINE VARIABLES
-// Define size of map group
-// Full world map is 2:1 ratio
-// Using 12:5 because we will crop top and bottom of map
 let w = 2000;
 let h = 1000;
-// variables for catching min and max zoom factors
-var minZoom;
-var maxZoom;
+let minZoom;
+let maxZoom;
+let maxAge;
+let minAge;
+let interval;
+let currentAge;
 
 var mapHolderEl = document.querySelector('#map-holder');
 var mapHolderWidth = mapHolderEl.offsetWidth;
@@ -20,8 +17,8 @@ var projection = d3
   .geoEquirectangular()
   .center([0, 15]) // set centre to further North as we are cropping more off bottom of map
   .scale([w / (2 * Math.PI)]) // scale to fit group width
-  .translate([w / 2, h / 2]) // ensure centred in group
-;
+  .translate([w / 2, h / 2]); // ensure centred in group
+
 
 // Define map path
 var path = d3
@@ -46,27 +43,45 @@ var zoom = d3
 function initiateZoom() {
   // Define a "minzoom" whereby the "Countries" is as small possible without leaving white space at top/bottom or sides
   minZoom = Math.max(mapHolderWidth / w, mapHolderHeight / h);
+
   // set max zoom to a suitable factor of this value
   maxZoom = 20 * minZoom;
+
   // set extent of zoom to chosen values
   // set translate extent so that panning can't cause map to move out of viewport
   zoom
     .scaleExtent([minZoom, maxZoom])
-    .translateExtent([[0, 0], [w, h]])
-  ;
+    .translateExtent([[0, 0], [w, h]]);
+
   // define X and Y offset for centre of map to be shown in centre of holder
   midX = (mapHolderWidth - minZoom * w) / 2;
   midY = (mapHolderHeight - minZoom * h) / 2;
+
   // change zoom transform to min zoom and centre offsets
   svg.call(zoom.transform, d3.zoomIdentity.translate(midX, midY).scale(minZoom));
+}
+
+function addPoints(data) {
+  const cleanData = data.filter((d) => d.lat && d.lon)
+
+  svg.selectAll("circle")
+  .data(cleanData).enter()
+  .append("circle")
+  .attr("cx", function (d) {
+     return projection([d.lon, d.lat])[0];
+  })
+  .attr("cy", function (d) {
+    return projection([d.lon, d.lat])[1];
+  })
+  .attr("r", "8px")
+  .attr("fill", "red")
 }
 
 // create an SVG
 var svg = d3
   .select("svg")
   .attr("width", mapHolderWidth)
-  .attr("height", mapHolderHeight)
- ;
+  .attr("height", mapHolderHeight);
 
 
 // get map data
@@ -94,4 +109,17 @@ d3.json("./data/world.geo.json")
     .attr("class", "country");
 
   initiateZoom();
+}).then(() => {
+  const url = 'http://earthlifeconsortium.org/api_v1/occ?taxon=Mammut%20americanum';
+
+  return axios.get(url)
+}).then((res) => {
+    const { records, metadata } = res.data
+    maxAge = _.maxBy(records, 'max_age').max_age;
+    minAge = _.minBy(records, 'min_age').min_age;
+    interval = (maxAge - minAge) / 3000;
+    currentAge = minAge;
+
+    addPoints(records);
+
 })
