@@ -33,13 +33,13 @@ const fetchTaxon = (targetTaxon) => {
 
 
     let grouped = _.chain(records)
-    .filter((g) => g.max_age && g.lat && g.lon)
-    .groupBy('max_age')
-    .value()
-    console.log('grouped', grouped)
+      .filter((g) => g.max_age && g.lat && g.lon)
+      .groupBy('max_age')
+      .value()
+    // console.log('grouped', grouped)
 
     let ages =  Object.keys(grouped)
-    console.log('ages', ages)
+    // console.log('ages', ages)
 
     maxAge = _.maxBy(records, 'max_age').max_age;
     minAge = _.minBy(records, 'min_age').min_age;
@@ -47,7 +47,7 @@ const fetchTaxon = (targetTaxon) => {
     // interval = (maxAge - minAge) / 3000;
 
     let interval = (maxAge - minAge) / ages.length
-    console.log('interval', interval)
+    // console.log('interval', interval)
 
     let prevAge = 0;
     ages.forEach((age, i) => {
@@ -70,19 +70,14 @@ const fetchTaxon = (targetTaxon) => {
 
         ageEl.innerHTML = 'max age: ' + Number(age).toFixed(4) + ' MYA'
         occurencesEl.innerHTML = filterRecords.length + ' occurences'
-      }, i * 500)
-      // prevAge = age
-
+      }, i * 250)
 
     })
 
     drawGraph(records);
     drawTable(records);
     linkEl.href = url + '&output=csv'
-
-
   })
-
 }
 
 const toggleEl = document.querySelector('.toggle')
