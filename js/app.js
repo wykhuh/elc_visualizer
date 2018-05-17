@@ -84,3 +84,12 @@ const fetchTaxon = (targetTaxon) => {
   })
 
 }
+
+const toggleEl = document.querySelector('.toggle')
+toggleEl.addEventListener('click', (e) => {
+  e.preventDefault()
+  const tableEl = document.querySelector('#table')
+
+  tableEl.classList.remove('hide')
+  tableEl.style.display = 'block';
+})

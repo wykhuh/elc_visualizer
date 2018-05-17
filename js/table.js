@@ -2,7 +2,7 @@ const drawTable = (data) => {
   const table = d3.select('#table');
 
   let tableRows = table.selectAll('tr').remove();
-  let cols = ['occ_id', 'lat', 'lon', 'max_age', 'min_age']
+  let cols = ['occ_id', 'lat', 'lon', 'locale_id', 'min_age', 'max_age']
 
   table.append('tr')
 

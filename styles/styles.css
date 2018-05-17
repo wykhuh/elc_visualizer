@@ -26,3 +26,7 @@ svg rect {
 body{
   padding: 2em;
 }
+
+.hide {
+  display: none;
+}
