@@ -11,6 +11,9 @@ var mapHolderEl = document.querySelector('#map-holder');
 var mapHolderWidth = mapHolderEl.offsetWidth;
 var mapHolderHeight = mapHolderEl.offsetHeight;
 
+var ageEl = document.querySelector('.js-age');
+var occurencesEl = document.querySelector('.js-occurences');
+
 let t;
 const margin = {top: 20, right: 20, bottom: 30, left: 50};
 
@@ -154,8 +157,11 @@ d3.json("./data/continent_North_America_subunits.json")
       //   addPoints(filterRecords);
 
       filterRecords = _.filter(records, (r) => { return r.max_age <= Number(age) });
-      console.log('filterRecords', filterRecords.length,  Number(age))
-      addPoints(filterRecords);
+        console.log('filterRecords', filterRecords.length,  Number(age))
+        addPoints(filterRecords);
+
+        ageEl.innerHTML = 'max age: ' + Number(age).toFixed(4) + ' MYA'
+        occurencesEl.innerHTML = filterRecords.length + ' occurences'
       }, i * 500)
       // prevAge = age
 

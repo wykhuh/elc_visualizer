@@ -22,3 +22,7 @@ svg rect {
   width: 900px;
   height: 300px;
 }
+
+body{
+  padding: 2em;
+}
