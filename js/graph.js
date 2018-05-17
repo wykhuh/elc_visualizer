@@ -19,7 +19,6 @@ var graphHolderHeight = graphHolderEl.offsetHeight;
   var g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
   let data  = _.chain(rawData)
-    .sortBy('max_age')
     .groupBy('max_age')
     .map((g) => {
       return { max_age: g[0]['max_age'], count: g.length }

@@ -117,13 +117,77 @@ d3.json("./data/continent_North_America_subunits.json")
 
   return axios.get(url)
 }).then((res) => {
-    const { records, metadata } = res.data
+
+    let { records, metadata } = res.data
+    records = _.sortBy(records, 'max_age')
+
+    let grouped = _.chain(records)
+    .filter((g) => g.max_age && g.lat && g.lon)
+    .groupBy('max_age')
+    .value()
+    console.log('grouped', grouped)
+
+    let ages =  Object.keys(grouped)
+    console.log('ages', ages)
+
     maxAge = _.maxBy(records, 'max_age').max_age;
     minAge = _.minBy(records, 'min_age').min_age;
-    interval = (maxAge - minAge) / 3000;
-    currentAge = minAge;
 
-    addPoints(records);
+    // interval = (maxAge - minAge) / 3000;
+
+    let interval = (maxAge - minAge) / ages.length
+    console.log('interval', interval)
+
+    let prevAge = 0;
+    ages.forEach((age, i) => {
+      let filterRecords = []
+      // console.log(i, age)
+
+      // filterRecords = _.filter(records, (r) => r.max_age < Number(minAge + i * interval));
+      // console.log('filterRecords', filterRecords.length, i , i * interval)
+
+      setTimeout(() => {
+      //   console.log('prevAge', age, i,  Number(ages[i -1] || 0 ))
+      //   filterRecords = _.filter(records, (r) => r.max_age < Number(age));
+      //   console.log(filterRecords)
+
+      //   addPoints(filterRecords);
+
+      filterRecords = _.filter(records, (r) => { return r.max_age <= Number(age) });
+      console.log('filterRecords', filterRecords.length,  Number(age))
+      addPoints(filterRecords);
+      }, i * 500)
+      // prevAge = age
+
+
+    })
+
     drawGraph(records);
+
+
+    // maxAge = _.maxBy(records, 'max_age').max_age;
+    // minAge = _.minBy(records, 'min_age').min_age;
+
+    // interval = (maxAge - minAge) / 3000;
+    // currentAge = minAge;
+
+    // let filterRecords = _.filter(records, (r) => r.min_age < currentAge + interval);
+    // console.log('start', minAge, filterRecords.length)
+
+    // addPoints(filterRecords);
+    // drawGraph(records);
+
+
+    // setInterval(() => {
+    //   console.log('loop', currentAge, filterRecords.length)
+
+    //   filterRecords = _.filter(records, (r) => r.min_age < currentAge + interval);
+    //   addPoints(filterRecords);
+    //   currentAge += interval;
+
+    // }, 3000)
+
+
+
 
 })
