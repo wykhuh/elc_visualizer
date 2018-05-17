@@ -1,5 +1,5 @@
-let w = 2000;
-let h = 1000;
+let w = 1400;
+let h = 700;
 let minZoom;
 let maxZoom;
 let maxAge;
@@ -73,7 +73,7 @@ function addPoints(data) {
   .attr("cy", function (d) {
     return projection([d.lon, d.lat])[1];
   })
-  .attr("r", "8px")
+  .attr("r", "3px")
   .attr("fill", "red")
 }
 
@@ -108,7 +108,7 @@ d3.json("./data/world.geo.json")
     })
     .attr("class", "country");
 
-  initiateZoom();
+  // initiateZoom();
 }).then(() => {
   const url = 'http://earthlifeconsortium.org/api_v1/occ?taxon=Mammut%20americanum';
 
