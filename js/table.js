@@ -1,7 +1,6 @@
-const table = d3.select('#table');
-
-
 const drawTable = (data) => {
+  const table = d3.select('#table');
+
   let tableRows = table.selectAll('tr').remove();
   let cols = ['occ_id', 'lat', 'lon', 'max_age', 'min_age']
 

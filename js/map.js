@@ -1,202 +1,76 @@
-let w = 900;
-let h = 500;
-let minZoom;
-let maxZoom;
-let maxAge;
-let minAge;
-let interval;
-let currentAge;
-let countriesGroup;
-var mapHolderEl = document.querySelector('#map-holder');
-var mapHolderWidth = mapHolderEl.offsetWidth;
-var mapHolderHeight = mapHolderEl.offsetHeight;
 
-var ageEl = document.querySelector('.js-age');
-var occurencesEl = document.querySelector('.js-occurences');
-var linkEl = document.querySelector('.js-link');
-let url;
+  let w = 900;
+  let h = 500;
+  let minZoom;
+  let maxZoom;
+  let maxAge;
+  let minAge;
+  let interval;
+  let currentAge;
+  let countriesGroup;
+  var mapHolderEl = document.querySelector('#map-holder');
+  var mapHolderWidth = mapHolderEl.offsetWidth;
+  var mapHolderHeight = mapHolderEl.offsetHeight;
+  const margin = {top: 20, right: 20, bottom: 30, left: 50};
 
-let t;
-const margin = {top: 20, right: 20, bottom: 30, left: 50};
-
-// Define map projection
-var projection = d3
-  .geoEquirectangular()
-  .center([-0, 20]) // set centre to further North as we are cropping more off bottom of map
-  .scale(150) // scale to fit group width
-  .translate([w / 2, h / 2]); // ensure centred in group
+  // Define map projection
+  var projection = d3
+    .geoEquirectangular()
+    .center([-0, 20]) // set centre to further North as we are cropping more off bottom of map
+    .scale(150) // scale to fit group width
+    .translate([w / 2, h / 2]); // ensure centred in group
 
 
-// Define map path
-var path = d3
-  .geoPath()
-  .projection(projection);
+  // Define map path
+  var path = d3
+    .geoPath()
+    .projection(projection);
 
+  function addPoints(data) {
+    const cleanData = data.filter((d) => d.lat && d.lon)
 
-// Create function to apply zoom to countriesGroup
-function zoomed() {
-   t = d3.event.transform;
-
-  countriesGroup
-    .attr("transform","translate(" + [t.x, t.y] + ")scale(" + t.k + ")");
-}
-
-// Define map zoom behaviour
-var zoom = d3
-  .zoom()
-  .on("zoom", zoomed);
-
-// Function that calculates zoom/pan limits and sets zoom to default value
-function initiateZoom() {
-  // Define a "minzoom" whereby the "Countries" is as small possible without leaving white space at top/bottom or sides
-  minZoom = Math.max(mapHolderWidth / w, mapHolderHeight / h);
-
-  // set max zoom to a suitable factor of this value
-  maxZoom = 20 * minZoom;
-
-  // set extent of zoom to chosen values
-  // set translate extent so that panning can't cause map to move out of viewport
-  zoom
-    .scaleExtent([minZoom, maxZoom])
-    .translateExtent([[0, 0], [w, h]]);
-
-  // define X and Y offset for centre of map to be shown in centre of holder
-  midX = (mapHolderWidth - minZoom * w) / 2;
-  midY = (mapHolderHeight - minZoom * h) / 2;
-
-  // change zoom transform to min zoom and centre offsets
-  svg.call(zoom.transform, d3.zoomIdentity.translate(midX, midY).scale(minZoom));
-}
-
-function addPoints(data) {
-  const cleanData = data.filter((d) => d.lat && d.lon)
-
-  svg.selectAll("circle")
-  .data(cleanData).enter()
-  .append("circle")
-  .attr("cx", function (d) {
-     return projection([d.lon, d.lat])[0];
-  })
-  .attr("cy", function (d) {
-    return projection([d.lon, d.lat])[1];
-  })
-  .attr("r", "3px")
-  .attr("fill", "red")
-
-}
-
-// create an SVG
-var svg = d3
-  .select("svg")
-  .attr("width", mapHolderWidth)
-  .attr("height", mapHolderHeight);
-
-
-// get map data
-d3.json("./data/world.geo.json")
-.then((json) => {
-  countriesGroup = svg.append("g").attr("id", "map");
-  // add a background rectangle
-  countriesGroup
-    .append("rect")
-    .attr("x", 0)
-    .attr("y", 0)
-    .attr("width", w)
-    .attr("height", h);
-
-  // draw a path for each feature/country
-  countries = countriesGroup
-    .selectAll("path")
-    .data(json.features)
-    .enter()
-    .append("path")
-    .attr("d", path)
-    .attr("id", function(d, i) {
-      return "country" + d.properties.iso_a3;
+    svg.selectAll("circle")
+    .data(cleanData).enter()
+    .append("circle")
+    .attr("cx", function (d) {
+      return projection([d.lon, d.lat])[0];
     })
-    .attr("class", "country");
-
-  // initiateZoom();
-}).then(() => {
-  url = 'http://earthlifeconsortium.org/api_v1/occ?taxon=Mammut%20americanum';
-
-  return axios.get(url)
-}).then((res) => {
-
-    let { records, metadata } = res.data
-    records = _.sortBy(records, 'max_age')
-
-    let grouped = _.chain(records)
-    .filter((g) => g.max_age && g.lat && g.lon)
-    .groupBy('max_age')
-    .value()
-    console.log('grouped', grouped)
-
-    let ages =  Object.keys(grouped)
-    console.log('ages', ages)
-
-    maxAge = _.maxBy(records, 'max_age').max_age;
-    minAge = _.minBy(records, 'min_age').min_age;
-
-    // interval = (maxAge - minAge) / 3000;
-
-    let interval = (maxAge - minAge) / ages.length
-    console.log('interval', interval)
-
-    let prevAge = 0;
-    ages.forEach((age, i) => {
-      let filterRecords = []
-      // console.log(i, age)
-
-      // filterRecords = _.filter(records, (r) => r.max_age < Number(minAge + i * interval));
-      // console.log('filterRecords', filterRecords.length, i , i * interval)
-
-      setTimeout(() => {
-      //   console.log('prevAge', age, i,  Number(ages[i -1] || 0 ))
-      //   filterRecords = _.filter(records, (r) => r.max_age < Number(age));
-      //   console.log(filterRecords)
-
-      //   addPoints(filterRecords);
-
-      filterRecords = _.filter(records, (r) => { return r.max_age <= Number(age) });
-        console.log('filterRecords', filterRecords.length,  Number(age))
-        addPoints(filterRecords);
-
-        ageEl.innerHTML = 'max age: ' + Number(age).toFixed(4) + ' MYA'
-        occurencesEl.innerHTML = filterRecords.length + ' occurences'
-      }, i * 500)
-      // prevAge = age
-
-
+    .attr("cy", function (d) {
+      return projection([d.lon, d.lat])[1];
     })
+    .attr("r", "3px")
+    .attr("fill", "red")
 
-    drawGraph(records);
-    drawTable(records);
-    linkEl.href = url + '&output=csv'
+  }
 
-    // maxAge = _.maxBy(records, 'max_age').max_age;
-    // minAge = _.minBy(records, 'min_age').min_age;
-
-    // interval = (maxAge - minAge) / 3000;
-    // currentAge = minAge;
-
-    // let filterRecords = _.filter(records, (r) => r.min_age < currentAge + interval);
-    // console.log('start', minAge, filterRecords.length)
-
-    // addPoints(filterRecords);
-    // drawGraph(records);
+  // create an SVG
+  var svg = d3
+    .select("svg")
+    .attr("width", mapHolderWidth)
+    .attr("height", mapHolderHeight);
 
 
-    // setInterval(() => {
-    //   console.log('loop', currentAge, filterRecords.length)
+  // get map data
+  d3.json("./data/world.geo.json")
+  .then((json) => {
+    countriesGroup = svg.append("g").attr("id", "map");
+    // add a background rectangle
+    countriesGroup
+      .append("rect")
+      .attr("x", 0)
+      .attr("y", 0)
+      .attr("width", w)
+      .attr("height", h);
 
-    //   filterRecords = _.filter(records, (r) => r.min_age < currentAge + interval);
-    //   addPoints(filterRecords);
-    //   currentAge += interval;
-
-    // }, 3000)
-
-
-
-
-})
+    // draw a path for each feature/country
+    countries = countriesGroup
+      .selectAll("path")
+      .data(json.features)
+      .enter()
+      .append("path")
+      .attr("d", path)
+      .attr("id", function(d, i) {
+        return "country" + d.properties.iso_a3;
+      })
+      .attr("class", "country");
+  })
